@@ -135,6 +135,7 @@ async fn create_txes(
         None,
         sender,
         keypair,
+        None,
     );
     let partial_sui_coin_tx = make_transfer_sui_transaction(
         gas_objects.pop().unwrap().compute_object_reference(),
@@ -142,6 +143,7 @@ async fn create_txes(
         Some(100),
         sender,
         keypair,
+        None,
     );
     ret.insert(
         CommonTransactionCosts::TransferWholeSuiCoin,
@@ -161,6 +163,7 @@ async fn create_txes(
         sender,
         keypair,
         SuiAddress::default(),
+        None,
     );
 
     ret.insert(CommonTransactionCosts::TransferWholeCoin, whole_coin_tx);
