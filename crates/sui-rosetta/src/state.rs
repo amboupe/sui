@@ -18,7 +18,7 @@ use std::str::FromStr;
 use std::sync::Arc;
 use std::time::{Duration, UNIX_EPOCH};
 use sui_sdk::apis::Checkpoint;
-use sui_sdk::{SuiClient, SuiClientBuilder};
+use sui_sdk::SuiClient;
 use sui_storage::default_db_options;
 use sui_types::base_types::{EpochId, SuiAddress};
 use sui_types::messages_checkpoint::CheckpointSequenceNumber;
@@ -340,35 +340,4 @@ impl CheckpointIndexStore {
 
 fn default_config() -> DBOptions {
     default_db_options(None, None).1
-}
-
-#[tokio::test]
-async fn test() {
-    let client = SuiClientBuilder::default()
-        .build("https://fullnode.devnet.sui.io:443")
-        .await
-        .unwrap();
-
-    let cp = client
-        .read_api()
-        .get_checkpoint_contents(6403)
-        .await
-        .unwrap();
-    let mut transactions = vec![];
-    for digest in cp.iter() {
-        let tx = client
-            .read_api()
-            .get_transaction(digest.transaction)
-            .await
-            .unwrap();
-        transactions.push(Transaction {
-            transaction_identifier: TransactionIdentifier {
-                hash: tx.certificate.transaction_digest,
-            },
-            operations: Operations::try_from(tx).unwrap(),
-            related_transactions: vec![],
-            metadata: None,
-        })
-    }
-    println!("{transactions:?}")
 }
