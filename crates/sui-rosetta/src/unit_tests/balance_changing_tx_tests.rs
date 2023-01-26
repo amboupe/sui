@@ -275,6 +275,35 @@ async fn test_pay_sui() {
 }
 
 #[tokio::test]
+async fn test_delegate_sui() {
+    let network = TestClusterBuilder::new().build().await.unwrap();
+    let client = network.wallet.get_client().await.unwrap();
+    let keystore = &network.wallet.config.keystore;
+
+    // Test Delegate Sui
+    let sender = get_random_address(&network.accounts, vec![]);
+    let coin1 = get_random_sui(&client, sender, vec![]).await;
+    let coin2 = get_random_sui(&client, sender, vec![coin1.0]).await;
+    let validator = client.governance_api().get_validators().await.unwrap()[0].sui_address;
+
+    let tx = client
+        .transaction_builder()
+        .request_add_delegation(
+            sender,
+            vec![coin1.0, coin2.0],
+            Some(1000000),
+            validator,
+            None,
+            100000,
+        )
+        .await
+        .unwrap();
+    let tx = tx.kind.into_single_transactions().next().unwrap();
+
+    test_transaction(&client, keystore, vec![], sender, tx, None).await;
+}
+
+#[tokio::test]
 async fn test_pay_all_sui() {
     let network = TestClusterBuilder::new().build().await.unwrap();
     let client = network.wallet.get_client().await.unwrap();
